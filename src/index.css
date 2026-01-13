@@ -1,0 +1,329 @@
+/* =========================
+   GLOBAL RESET & LAYOUT
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+/* =========================
+   COMMON PAGE STYLING
+========================= */
+.page {
+  min-height: calc(100vh - 70px); /* subtract navbar height */
+  padding: 40px 80px;
+}
+
+/* Headings */
+.page h1 {
+  font-size: 2.4rem;
+  margin-bottom: 15px;
+  color: #1f2937;
+}
+
+.page p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 700px;
+}
+
+/* =========================
+   HOME PAGE
+========================= */
+.home-hero {
+  background: linear-gradient(to right, #1f2937, #374151);
+  color: white;
+  padding: 60px;
+  border-radius: 12px;
+}
+
+.home-hero h1 {
+  color: white;
+}
+
+.home-hero p {
+  margin-top: 10px;
+  font-size: 1.1rem;
+}
+/* =========================
+   HOME MUSIC ANIMATIONS
+========================= */
+
+.home {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animation container */
+.music-animation {
+  position: relative;
+  margin-top: 60px;
+  height: 200px;
+}
+
+/* Music notes */
+.note,
+.instrument {
+  position: absolute;
+  font-size: 2.5rem;
+  animation: floatUp 6s infinite ease-in-out;
+  opacity: 0.8;
+}
+
+/* Individual positions */
+.note:nth-child(1) {
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.note:nth-child(2) {
+  left: 30%;
+  animation-delay: 1s;
+}
+
+.note:nth-child(3) {
+  left: 50%;
+  animation-delay: 2s;
+}
+
+.instrument:nth-child(4) {
+  left: 70%;
+  animation-delay: 0.5s;
+}
+
+.instrument:nth-child(5) {
+  left: 85%;
+  animation-delay: 1.5s;
+}
+
+.instrument:nth-child(6) {
+  left: 95%;
+  animation-delay: 2.5s;
+}
+
+/* Floating animation */
+@keyframes floatUp {
+  0% {
+    transform: translateY(80px) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-120px) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+/* Mobile adjustment */
+@media (max-width: 768px) {
+  .note,
+  .instrument {
+    font-size: 2rem;
+  }
+}
+
+
+/* =========================
+   LYRICS PAGE
+========================= */
+.lyrics-box {
+  margin-top: 20px;
+  background-color: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+/* =========================
+   LYRICS TABS
+========================= */
+.lyrics-tabs {
+  margin: 20px 0;
+  display: flex;
+  gap: 15px;
+}
+
+.lyrics-tabs a {
+  padding: 10px 18px;
+  background-color: #e5e7eb;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #111827;
+  font-weight: 500;
+}
+
+.lyrics-tabs a:hover {
+  background-color: #2563eb;
+  color: white;
+}
+
+/* Lyrics list */
+.lyrics-box ul {
+  margin-top: 15px;
+  padding-left: 20px;
+}
+
+.lyrics-box li {
+  margin-bottom: 8px;
+}
+
+/* =========================
+   FORMS (Song Request & Contact)
+========================= */
+form {
+  margin-top: 20px;
+  max-width: 450px;
+}
+
+label {
+  font-weight: 600;
+}
+
+input, textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* Buttons */
+button {
+  margin-top: 15px;
+  padding: 10px 22px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #1d4ed8;
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+@media (max-width: 768px) {
+  .page {
+    padding: 25px;
+  }
+
+  .home-hero {
+    padding: 30px;
+  }
+
+  .page h1 {
+    font-size: 1.9rem;
+  }
+}
+/* =========================
+   SONG LIST
+========================= */
+.song-list {
+  margin-top: 15px;
+  list-style: none;
+}
+
+.song-list li {
+  margin-bottom: 10px;
+}
+
+.song-list a {
+  text-decoration: none;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.song-list a:hover {
+  text-decoration: underline;
+}
+
+/* Two Column Layout */
+.two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.two-column-layout .column {
+  display: flex;
+  flex-direction: column;
+}
+
+.two-column-layout .song-list {
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+  .two-column-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================
+   LYRICS VIEW
+========================= */
+.lyrics-text {
+  margin-top: 20px;
+  white-space: pre-wrap;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  line-height: 1.8;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: #2563eb;
+  text-decoration: none;
+}
+.back-link:hover {
+  text-decoration: underline;
+}
+/* =========================
+   FOOTER
+========================= */
+.footer {
+  width: 100%;
+  background-color: #1f2937;
+  color: #e5e7eb;
+  padding: 18px 10px;
+  text-align: center;
+  margin-top: auto;
+}
+
+.footer p {
+  font-size: 0.9rem;
+}
+
+.footer-sub {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+.footer a {
+  color: #9ca3af;
+  text-decoration: none;
+}

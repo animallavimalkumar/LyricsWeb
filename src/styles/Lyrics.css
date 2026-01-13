@@ -1,0 +1,110 @@
+/* ===== Vibrant Animated Gradient Background ===== */
+.page {
+  min-height: 100vh;
+  padding: 30px;
+  color: #ffffff;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+  background: linear-gradient(
+    270deg,
+    #ff6ec4,
+    #7873f5,
+    #4facfe,
+    #00f2fe,
+    #43e97b,
+    #f9d423,
+    #ff6ec4
+  );
+  background-size: 500% 500%;
+  animation: gradientShift 14s ease infinite;
+}
+
+/* ===== Gradient Motion ===== */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ===== Heading ===== */
+.page h1 {
+  text-align: center;
+  margin-bottom: 35px;
+  font-size: 2.4rem;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+/* ===== Tabs ===== */
+.lyrics-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 45px;
+  margin-bottom: 40px;
+}
+
+/* ===== Tab Links ===== */
+.lyrics-tabs a {
+  position: relative;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding-bottom: 8px;
+  transition: color 0.3s ease;
+}
+
+/* ===== Hover + Active ===== */
+.lyrics-tabs a:hover,
+.lyrics-tabs a.active {
+  color: #ffffff;
+}
+
+/* ===== Neon Underline ===== */
+.lyrics-tabs a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, #ffffff, #fff700, #ffffff);
+  border-radius: 6px;
+  transition: width 0.35s ease;
+}
+
+.lyrics-tabs a:hover::after,
+.lyrics-tabs a.active::after {
+  width: 100%;
+}
+
+/* ===== Outlet Fade ===== */
+.page > div:last-child {
+  animation: fadeUp 0.6s ease;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+  .lyrics-tabs {
+    flex-direction: column;
+    gap: 18px;
+  }
+}
