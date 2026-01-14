@@ -1,4 +1,4 @@
-import pool from '../config/mysqlDb.js';
+import { executeQuery } from '../config/mysqlDb.js';
 
 // Create a new song request
 export async function createSongRequest(req, res) {
@@ -13,7 +13,7 @@ export async function createSongRequest(req, res) {
       });
     }
 
-    const [result] = await pool.execute(
+    const result = await executeQuery(
       'INSERT INTO song_requests (song_name, artist, status) VALUES (?, ?, ?)',
       [songName, artist, 'pending']
     );
@@ -43,7 +43,7 @@ export async function createSongRequest(req, res) {
 // Get all song requests
 export async function getSongRequests(req, res) {
   try {
-    const [requests] = await pool.execute(
+    const requests = await executeQuery(
       'SELECT * FROM song_requests ORDER BY created_at DESC'
     );
 
