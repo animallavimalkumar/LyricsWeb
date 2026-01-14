@@ -1,61 +1,62 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dataFile = path.join(__dirname, '../data/songRequests.json');
-
-// Ensure data file exists
-async function ensureDataFile() {
-  try {
-    await fs.access(dataFile);
-  } catch {
-    await fs.writeFile(dataFile, JSON.stringify([], null, 2));
-  }
-}
+import pool from '../config/mysqlDb.js';
 
 // Create a new song request
 export async function createSongRequest(req, res) {
   try {
-    await ensureDataFile();
     const { songName, artist } = req.body;
 
+    // Basic validation
+    if (!songName || !artist) {
+      return res.status(400).json({
+        success: false,
+        error: 'Song name and artist are required'
+      });
+    }
+
+    const [result] = await pool.execute(
+      'INSERT INTO song_requests (song_name, artist, status) VALUES (?, ?, ?)',
+      [songName, artist, 'pending']
+    );
+
     const songRequest = {
-      id: Date.now(),
-      songName,
+      id: result.insertId,
+      song_name: songName,
       artist,
-      createdAt: new Date().toISOString(),
+      status: 'pending',
+      created_at: new Date()
     };
 
-    const data = await fs.readFile(dataFile, 'utf8');
-    const requests = JSON.parse(data);
-    requests.push(songRequest);
-
-    await fs.writeFile(dataFile, JSON.stringify(requests, null, 2));
-
     res.status(201).json({
+      success: true,
       message: 'Song request submitted successfully',
       data: songRequest,
     });
   } catch (error) {
     console.error('Error creating song request:', error);
-    res.status(500).json({ error: 'Failed to submit song request' });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to submit song request'
+    });
   }
 }
 
 // Get all song requests
 export async function getSongRequests(req, res) {
   try {
-    await ensureDataFile();
-    const data = await fs.readFile(dataFile, 'utf8');
-    const requests = JSON.parse(data);
+    const [requests] = await pool.execute(
+      'SELECT * FROM song_requests ORDER BY created_at DESC'
+    );
 
     res.status(200).json({
+      success: true,
       message: 'Song requests retrieved successfully',
       data: requests,
     });
   } catch (error) {
     console.error('Error retrieving song requests:', error);
-    res.status(500).json({ error: 'Failed to retrieve song requests' });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve song requests'
+    });
   }
 }

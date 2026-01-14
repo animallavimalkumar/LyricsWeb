@@ -1,11 +1,23 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import pool from './config/mysqlDb.js';
 import songRequestRoutes from './routes/songRequest.js';
 import contactRoutes from './routes/contact.js';
 import translateRoutes from './routes/translate.js';
 
 dotenv.config();
+
+// Connect to MySQL
+(async () => {
+  try {
+    const connection = await pool.getConnection();
+    console.log('MySQL Connected');
+    connection.release();
+  } catch (error) {
+    console.error('MySQL Connection Error:', error);
+  }
+})();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
