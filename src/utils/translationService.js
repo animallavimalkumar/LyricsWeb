@@ -20,8 +20,11 @@ export async function translateText(text, targetLang) {
       return text;
     }
 
+    // Get API base URL from environment variable or use relative path
+    const apiBaseUrl = import.meta.env.VITE_API_URL || '';
+    
     // Call backend API
-    const response = await fetch('/api/translate', {
+    const response = await fetch(`${apiBaseUrl}/api/translate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -12,13 +12,16 @@ function SongRequest() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Get API base URL from environment variable or use relative path
+  const apiBaseUrl = import.meta.env.VITE_API_URL || '';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
 
     try {
-      const response = await fetch('/api/song-request', {
+      const response = await fetch(`${apiBaseUrl}/api/song-request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
