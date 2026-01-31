@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import mysql from 'mysql2/promise';
 import pool from './config/mysqlDb.js';
 import songRequestRoutes from './routes/songRequest.js';
 import contactRoutes from './routes/contact.js';
@@ -8,9 +9,78 @@ import translateRoutes from './routes/translate.js';
 
 dotenv.config();
 
-// Connect to MySQL
+// Database configuration for table creation
+const dbConfig = {
+  host: process.env.MYSQL_HOST || 'localhost',
+  user: process.env.MYSQL_USER || 'root',
+  password: process.env.MYSQL_PASSWORD || 'Vimal@509',
+  database: process.env.MYSQL_DATABASE || 'my_react_app',
+  port: process.env.MYSQL_PORT || 3306,
+};
+
+// Function to create tables if they don't exist
+async function createTablesIfNotExist() {
+  let connection;
+  try {
+    connection = await mysql.createConnection(dbConfig);
+    console.log('Connected to MySQL for table creation');
+
+    // Check and create contacts table
+    const [contactsTables] = await connection.execute("SHOW TABLES LIKE 'contacts'");
+    if (contactsTables.length === 0) {
+      await connection.execute(`
+        CREATE TABLE contacts (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          email VARCHAR(255) NOT NULL,
+          message TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      console.log('Contacts table created');
+    }
+
+    // Check and create song_requests table
+    const [songRequestTables] = await connection.execute("SHOW TABLES LIKE 'song_requests'");
+    if (songRequestTables.length === 0) {
+      await connection.execute(`
+        CREATE TABLE song_requests (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          song_name VARCHAR(255) NOT NULL,
+          artist VARCHAR(255) NOT NULL,
+          status ENUM('pending', 'approved', 'rejected', 'completed') DEFAULT 'pending',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      console.log('Song requests table created');
+    }
+
+    // Create indexes
+    try {
+      await connection.execute('CREATE INDEX idx_contacts_email ON contacts(email)');
+    } catch (e) {}
+    try {
+      await connection.execute('CREATE INDEX idx_contacts_created_at ON contacts(created_at)');
+    } catch (e) {}
+    try {
+      await connection.execute('CREATE INDEX idx_song_requests_status ON song_requests(status)');
+    } catch (e) {}
+    try {
+      await connection.execute('CREATE INDEX idx_song_requests_created_at ON song_requests(created_at)');
+    } catch (e) {}
+
+    console.log('Database setup completed');
+  } catch (error) {
+    console.error('Error setting up database:', error);
+  } finally {
+    if (connection) await connection.end();
+  }
+}
+
+// Initialize database and connect
 (async () => {
   try {
+    await createTablesIfNotExist();
     const connection = await pool.getConnection();
     console.log('MySQL Connected');
     connection.release();

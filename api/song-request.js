@@ -1,9 +1,7 @@
 // Vercel Serverless Function for Song Request API
-// Note: In serverless environment, we can't use file system for persistent storage
-// This implementation uses in-memory storage for demo purposes
-// For production, use a database like MongoDB, PostgreSQL, or Vercel KV
+// Uses MySQL database for persistent storage
 
-let songRequests = [];
+import { executeQuery } from '../server/config/mysqlDb.js';
 
 // Validate song request data
 function validateSongRequest(body) {
@@ -28,7 +26,7 @@ function validateSongRequest(body) {
   return { valid: true };
 }
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -45,41 +43,63 @@ export default function handler(req, res) {
     try {
       const validation = validateSongRequest(req.body);
       if (!validation.valid) {
-        return res.status(400).json({ error: validation.error });
+        return res.status(400).json({
+          success: false,
+          error: validation.error
+        });
       }
 
       const { songName, artist } = req.body;
 
+      const result = await executeQuery(
+        'INSERT INTO song_requests (song_name, artist, status) VALUES (?, ?, ?)',
+        [songName.trim(), artist.trim(), 'pending']
+      );
+
       const songRequest = {
-        id: Date.now(),
-        songName: songName.trim(),
+        id: result.insertId,
+        song_name: songName.trim(),
         artist: artist.trim(),
-        createdAt: new Date().toISOString(),
+        status: 'pending',
+        created_at: new Date()
       };
 
-      songRequests.push(songRequest);
-
       return res.status(201).json({
+        success: true,
         message: 'Song request submitted successfully',
         data: songRequest,
       });
     } catch (error) {
       console.error('Error creating song request:', error);
-      return res.status(500).json({ error: 'Failed to submit song request' });
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to submit song request'
+      });
     }
   }
 
   if (req.method === 'GET') {
     try {
+      const songRequests = await executeQuery(
+        'SELECT * FROM song_requests ORDER BY created_at DESC'
+      );
+
       return res.status(200).json({
+        success: true,
         message: 'Song requests retrieved successfully',
         data: songRequests,
       });
     } catch (error) {
       console.error('Error retrieving song requests:', error);
-      return res.status(500).json({ error: 'Failed to retrieve song requests' });
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to retrieve song requests'
+      });
     }
   }
 
-  return res.status(405).json({ error: 'Method not allowed' });
+  return res.status(405).json({
+    success: false,
+    error: 'Method not allowed'
+  });
 }

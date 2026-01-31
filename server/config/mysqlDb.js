@@ -3,8 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// For Vercel serverless functions, we need to create connections per request
-// instead of using a persistent pool
+// Database configuration for persistent servers like Railway
 const dbConfig = {
   host: process.env.MYSQL_HOST || 'localhost',
   user: process.env.MYSQL_USER || 'root',
@@ -14,23 +13,13 @@ const dbConfig = {
   connectTimeout: 60000,
   acquireTimeout: 60000,
   timeout: 60000,
+  waitForConnections: true,
+  connectionLimit: process.env.NODE_ENV === 'production' ? 20 : 10,
+  queueLimit: 0
 };
 
-// Create a connection pool for local development
-let pool;
-
-if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
-  // In production/serverless, we'll create connections per request
-  pool = null;
-} else {
-  // In development, use connection pool
-  pool = mysql.createPool({
-    ...dbConfig,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-  });
-}
+// Create a connection pool (always use pool for persistent servers)
+const pool = mysql.createPool(dbConfig);
 
 // Function to get a connection
 export async function getConnection() {

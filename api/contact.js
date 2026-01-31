@@ -1,9 +1,7 @@
 // Vercel Serverless Function for Contact API
-// Note: In serverless environment, we can't use file system for persistent storage
-// This implementation uses in-memory storage for demo purposes
-// For production, use a database like MongoDB, PostgreSQL, or Vercel KV
+// Uses MySQL database for persistent storage
 
-let contacts = [];
+import { executeQuery } from '../server/config/mysqlDb.js';
 
 // Validate contact data
 function validateContact(body) {
@@ -38,7 +36,7 @@ function validateContact(body) {
   return { valid: true };
 }
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -55,42 +53,63 @@ export default function handler(req, res) {
     try {
       const validation = validateContact(req.body);
       if (!validation.valid) {
-        return res.status(400).json({ error: validation.error });
+        return res.status(400).json({
+          success: false,
+          error: validation.error
+        });
       }
 
       const { name, email, message } = req.body;
 
+      const result = await executeQuery(
+        'INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)',
+        [name.trim(), email.trim(), message.trim()]
+      );
+
       const contact = {
-        id: Date.now(),
+        id: result.insertId,
         name: name.trim(),
         email: email.trim(),
         message: message.trim(),
-        createdAt: new Date().toISOString(),
+        created_at: new Date()
       };
 
-      contacts.push(contact);
-
       return res.status(201).json({
+        success: true,
         message: 'Contact message submitted successfully',
         data: contact,
       });
     } catch (error) {
       console.error('Error creating contact:', error);
-      return res.status(500).json({ error: 'Failed to submit contact message' });
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to submit contact message'
+      });
     }
   }
 
   if (req.method === 'GET') {
     try {
+      const contacts = await executeQuery(
+        'SELECT * FROM contacts ORDER BY created_at DESC'
+      );
+
       return res.status(200).json({
+        success: true,
         message: 'Contact messages retrieved successfully',
         data: contacts,
       });
     } catch (error) {
       console.error('Error retrieving contacts:', error);
-      return res.status(500).json({ error: 'Failed to retrieve contact messages' });
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to retrieve contact messages'
+      });
     }
   }
 
-  return res.status(405).json({ error: 'Method not allowed' });
+  return res.status(405).json({
+    success: false,
+    error: 'Method not allowed'
+  });
 }
